@@ -55,7 +55,7 @@
             cursor: pointer;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s, border-color 0.3s;
             position: relative;
-            height: auto; /* Ensure card grows with text */
+            height: auto;
         }
 
         .game-card:hover {
@@ -93,6 +93,18 @@
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
         }
 
+        /* Hide specific elements on minimize */
+        #blank-overlay.minimized #not-working-btn,
+        #blank-overlay.minimized #fullscreen-btn {
+            display: none !important;
+        }
+
+        /* Hide top navigation bar when iframe container is in HTML5 Fullscreen */
+        #blank-overlay:fullscreen .overlay-nav,
+        #blank-overlay:-webkit-full-screen .overlay-nav {
+            display: none !important;
+        }
+
         .overlay-nav {
             height: 48px;
             min-height: 48px;
@@ -123,7 +135,7 @@
         .img-container {
             width: 90%;
             height: 130px;
-            background: #000;
+            background: #000; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -134,13 +146,11 @@
 
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Zoom-out utility for specific icons */
         .zoom-out-img img {
             object-fit: contain !important;
             padding: 12px !important;
+            background: #000;
         }
-
-        .img-container svg { width: 60px; height: 60px; }
 
         .game-card span {
             font-weight: 600;
@@ -150,7 +160,7 @@
             text-transform: capitalize;
             display: block;
             word-wrap: break-word;
-            white-space: normal; /* Allows text to wrap and be fully visible */
+            white-space: normal;
         }
 
         .dropdown-menu {
@@ -160,7 +170,8 @@
             transform: translateY(-10px) scale(0.95);
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            overflow: hidden;
+            overflow-y: auto;
+            max-height: 300px;
         }
         
         .game-card.active-dropdown { z-index: 10000; border-color: #00ffff; }
@@ -173,17 +184,176 @@
 
         #iframe-wrapper { flex: 1; position: relative; background: #000; }
         iframe { width: 100%; height: 100%; border: none; }
+
+        /* Premium Centered Smooth Fade Modal Transitions */
+        #not-working-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999999; /* Higher priority to overlay on top of minimize panels and viewports */
+            background: rgba(0, 0, 0, 0.85);
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        
+        #not-working-modal.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        
+        #not-working-modal .modal-content-box {
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background-color: #050505 !important;
+            border: 1px solid #d1d5db !important; /* Premium light gray outline restored */
+            border-radius: 16px !important; /* Rounded corners */
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.95) !important;
+            padding: 25px !important; /* EXACTLY 25px padding from text/content to border */
+            box-sizing: border-box !important;
+        }
+        
+        #not-working-modal.show .modal-content-box {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Wrap styling designed to preserve natural breaking logic of URLs */
+        #modal-url-text {
+            display: block !important;
+            line-height: 1.5 !important;
+            max-height: 120px;
+            overflow-y: auto;
+            text-align: left !important;
+        }
+
+        #modal-url-text span.url-chunk {
+            display: inline-block;
+        }
+
+        /* Premium Styled Buttons */
+        .premium-btn-cyan {
+            background: linear-gradient(135deg, #00ffff 0%, #00bcbc 100%) !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.05em !important;
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3) !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+        }
+        .premium-btn-cyan:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5) !important;
+            filter: brightness(1.1) !important;
+        }
+        .premium-btn-cyan:active {
+            transform: translateY(1px) !important;
+        }
+
+        .premium-btn-red {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.05em !important;
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+        }
+        .premium-btn-red:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+            filter: brightness(1.1) !important;
+        }
+        .premium-btn-red:active {
+            transform: translateY(1px) !important;
+        }
+
+        /* Premium Top Bar Button Style */
+        #not-working-btn {
+            background: linear-gradient(135deg, #00ffff 0%, #00bcbc 100%) !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.05em !important;
+            border: none !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4) !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+            padding: 6px 14px !important;
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+        }
+        #not-working-btn:hover {
+            transform: scale(1.05) !important;
+            box-shadow: 0 6px 20px rgba(0, 255, 255, 0.6) !important;
+            filter: brightness(1.1) !important;
+        }
+        #not-working-btn:active {
+            transform: scale(0.98) !important;
+        }
+
+        /* Fullscreen Button Style - Exact #333333 Color */
+        #fullscreen-btn {
+            background-color: #333333 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border: none !important;
+            border-radius: 6px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+            transition: all 0.2s ease !important;
+            cursor: pointer !important;
+        }
+        #fullscreen-btn:hover {
+            transform: scale(1.05) !important;
+            background-color: #444444 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6) !important;
+        }
+        #fullscreen-btn:active {
+            transform: scale(0.95) !important;
+        }
     </style>
 </head>
 <body onclick="closeAllDropdowns(event)">
 
+    <!-- Assistant Modal with Premium Black Styling and Light Gray Outline -->
+    <div id="not-working-modal">
+        <div class="modal-content-box max-w-md w-full text-center">
+            <h3 class="text-[#00ffff] font-black text-xl mb-4 uppercase tracking-wider">Bypass Assistant</h3>
+            <p class="text-sm text-gray-300 mb-6 leading-relaxed">
+                If the game/tool you're trying to access isn't working, try opening it in a proxy like Lucide, Lunar V2 or Dogeub
+            </p>
+            <div class="bg-black border border-gray-800 rounded-xl p-3 mb-6 flex items-center justify-between">
+                <!-- Spans with word chunks injected dynamically -->
+                <span id="modal-url-text" class="text-xs text-gray-400 flex-1 mr-2 text-left font-mono"></span>
+            </div>
+            <div class="flex gap-4 justify-center">
+                <button class="premium-btn-red px-6 py-2.5 rounded-xl text-sm uppercase tracking-wide transition-all duration-200" onclick="closeNotWorkingModal()">Close</button>
+                <button id="copy-btn" class="premium-btn-cyan px-6 py-2.5 rounded-xl text-sm uppercase tracking-wide transition-all duration-200" onclick="copyModalUrl()">Copy Link</button>
+            </div>
+        </div>
+    </div>
+
     <div id="blank-overlay">
         <div class="overlay-nav">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
                 <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></div>
                 <span id="active-title" style="font-size: 11px; color: #fff; font-weight: 900; text-transform: uppercase;">HOME</span>
+                <!-- Premium Glowing Cyan Top Bar Trigger -->
+                <button id="not-working-btn" onclick="showNotWorkingModal()">Blocked or Not Working?</button>
             </div>
             <div class="flex gap-2">
+                <!-- Styled Fullscreen Button with exact #333333 background color and hover logic -->
+                <button id="fullscreen-btn" class="nav-btn transition-all duration-200 shadow-md shadow-black/40" onclick="toggleFullscreen()">Fullscreen</button>
                 <button id="minimize-btn" class="nav-btn btn-minimize" onclick="toggleMinimize()">Minimize</button>
                 <button class="nav-btn btn-close" onclick="closeOverlay()">Close</button>
             </div>
@@ -214,6 +384,12 @@
                     { name: 'Breeze', url: 'https://1games.io/game/geometry-dash-breeze/' }
                 ]
             },
+            { id: 'nealfun', name: 'Neal.fun', url: "https://neal.fun", img: "https://staticg.sportskeeda.com/editor/2024/03/b527e-17112226579487-1920.jpg?w=640", zoomOut: true },
+            { id: 'slitherio', name: 'Slither.io', url: "http://slither.com/io", img: "https://imgs.crazygames.com/games/slitherio/cover-1587331280441.png?metadata=none&quality=60&height=6321", zoomOut: true },
+            { id: 'winterfox', name: 'Winter Fox', url: "https://html-classic.itch.zone/html/4411977/index.html", img: "https://plain-weur-prod-public.komododecks.com/202605/17/eBd8o6T7uCK0CP5BIBXQ/image.png", zoomOut: true },
+            { id: 'paperio', name: 'Paper.io', url: "https://games.voodoo.io/paperio2", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoNVGIUnTsEI_CaXUvFROw3rqvpsQIJNugcQ&s", zoomOut: true },
+            { id: 'agario', name: 'Agar.io', url: "https://agar.io/#ffa", img: "https://i.ytimg.com/vi/ztPmymDpLwI/maxresdefault.jpg" },
+            { id: 'holeio', name: 'Hole.io', url: "https://holeio.com", img: "https://holeio.com/images/hole-share.jpg" },
             { id: 'fnaf', name: 'Five Nights At Freddys', url: "https://dorukyum.github.io/FNAF-Web/", img: "https://static.wikia.nocookie.net/freddy-fazbears-pizza/images/d/da/FNaF1.jpg", zoomOut: true },
             { id: 'spaceWaves', name: 'space waves', url: "Games/Space Waves/spacewaves.html", img: "https://i.ytimg.com/vi/0L885f9nUI8/maxresdefault.jpg" },
             { id: 'amongUs', name: 'among us', url: "https://stgames.top/unity/amongus/", img: "https://assets.nintendo.com/image/upload/q_auto/f_auto/store/software/switch/70010000036098/758ab0b61205081da2466386940752c70e0e5ea43bd39e8b9b13eaa455c69b7e" },
@@ -235,11 +411,70 @@
         ];
 
         const other = [
-            { id: 'ai', name: 'Unlocks AI', url: "https://unlocks-ai-653511058784.europe-west2.run.app", svg: "bolt" },
+            { id: 'ai', name: 'Unlocks AI', url: "https://unlocks-ai-653511058784.europe-west2.run.app", img: "https://plain-weur-prod-public.komododecks.com/202605/15/Qo2BCxcUjkbBy3NoZIbQ/image.png", zoomOut: true },
+            { 
+                id: 'lucide', name: 'Lucide', img: "https://plain-weur-prod-public.komododecks.com/202605/16/wmHRk6G91ulu5uDE8hE1/image.png", zoomOut: true,
+                options: [
+                    { name: 'Web 1', url: 'https://lsrelay-l.s3.amazonaws.com/index.html' },
+                    { name: 'Web 2', url: 'https://unpkg.com/browselucide@1.0.2/logo.svg#/' },
+                    { name: 'Web 3', url: 'https://pub-bc82e2ed41754dc4b80c6d83a173f04b.r2.dev/index.html#/' },
+                    { name: 'Web 4', url: 'https://lucide.fortbendisd.cc' },
+                    { name: 'Web 5', url: 'https://luci.plasmii.vip' },
+                    { name: 'Web 6', url: 'https://jian-danggelao-shi.global.ssl.fastly.net' },
+                    { name: 'Web 7', url: 'https://originfastly.jsdelivr.net/gh/coinbaselarper/svg@latest/logo.svg#/' },
+                    { name: 'Web 8', url: 'https://gcore.jsdelivr.net/gh/coinbaselarper/svg@latest/logo.svg#/' },
+                    { name: 'Web 9', url: 'https://fastly.jsdelivr.net/gh/coinbaselarper/svg@latest/logo.svg#/' },
+                    { name: 'Web 10', url: 'https://quantil.jsdelivr.net/gh/coinbaselarper/svg@latest/logo.svg#/' },
+                    { name: 'Web 11', url: 'https://cdn.skypack.dev/-/browselucide@v1.0.2-zpEUO42W9aFbC42Tbb8J/dist=es2019,mode=raw/logo.svg#/' }
+                ]
+            },
+            { 
+                id: 'lunar', name: 'Lunar', img: "https://plain-weur-prod-public.komododecks.com/202605/16/gXiJT1bhqH4BhKiI1kxR/image.png", zoomOut: true,
+                options: [
+                    { name: 'Web 1', url: 'https://gawd.rcdx93.net' },
+                    { name: 'Web 2', url: 'https://tacotruck.sesaech.gob.mx' },
+                    { name: 'Web 3', url: 'https://lunarrr.eminescusm.ro' }
+                ]
+            },
             { id: 'movish', name: 'Movish', url: "https://movish.net", img: "https://movish.net/static/img/Movish.net.png" },
-            { id: 'tmovie', name: 'TMovie', url: "https://www.tmovie.in", isTMovie: true },
-            { id: 'tv', name: 'Live TV', url: 'https://tv247.us/', img: "https://cdn-icons-png.flaticon.com/512/716/716429.png" }
+            { id: 'tmovie', name: 'TMovie', url: "https://www.tmovie.in", img: "https://plain-weur-prod-public.komododecks.com/202605/16/4AU7JgUtlRDy2S8JBlTM/image.png", zoomOut: true },
+            { id: 'tv', name: 'Live TV', url: 'https://tv247.us/', img: "https://cdn-icons-png.flaticon.com/512/716/716429.png" },
+            { id: 'cineby', name: 'Cineby', url: "https://www.cineby.sc", img: "https://cdn2.steamgriddb.com/logo_thumb/fecfc63cfffc2f0ea0ae400789e30ff2.png", zoomOut: true },
+            { 
+                id: 'dogeub', name: 'Dogeub', img: "https://plain-weur-prod-public.komododecks.com/202605/16/JxV0BL5dGU43uENk7TWU/image.png", zoomOut: true,
+                options: [
+                    { name: 'Web 1', url: 'https://canvas-lms.storage.googleapis.com/index.html' },
+                    { name: 'Web 2', url: 'https://s3.amazonaws.com/deltamath-demo/index.html' },
+                    { name: 'Web 3', url: 'https://storage.googleapis.com/educationate/index.html' },
+                    { name: 'Web 4', url: 'https://s3.amazonaws.com/educationate/index.html' },
+                    { name: 'Web 5', url: 'https://storage.googleapis.com/instructure/index.html' },
+                    { name: 'Web 6', url: 'https://lsrelay-1.s3.amazonaws.com/index.htm' },
+                    { name: 'Web 7', url: 'https://s3.amazonaws.com/lsrelay-1/index.html' },
+                    { name: 'Web 8', url: 'https://active.plik-perm.ru' },
+                    { name: 'Web 9', url: 'https://edu.nextcomm.com.ar' },
+                    { name: 'Web 10', url: 'https://getaway.champagnewishesandrvdreams.com' },
+                    { name: 'Web 11', url: 'https://edu.quevo.com.br' },
+                    { name: 'Web 12', url: 'https://edu.italianish.beltfrog.com' },
+                    { name: 'Web 13', url: 'https://tasty.how-to-cook.airlinemeals.net' }
+                ]
+            }
         ];
+
+        // Fallback Mapping for Local/Un-hosted URLs
+        const fallbackUrls = {
+            "Games/Space Waves/spacewaves.html": "https://games.crazygames.com/en_US/space-waves/index.html?czyExpPauseVideos_CZY_19495=disabled&czyGPModelSwitcher_20260512=ineligible&isNewUser=false&__nextLocale=en-US&v=1.357",
+            "./Games/Minecraft/Astra_Client_1.6.0.html": "https://eaglercraft.dev/clients/Astra%20Client%201.6.0%20WASM/index.html",
+            "./Games/Minecraft/EaglyMC_1.20.html": "https://eaglercraft.dev/clients/EaglyMC%201.20%20WASM/index.html",
+            "./Games/Minecraft/Pixel_Client_1.8.8.html": "https://eaglercraft.dev/clients/PixelClient%203%201.8.8%20WASM/index.html",
+            "./Games/Minecraft/Pixel_Client_1.12.2.html": "https://eaglercraft.dev/clients/PixelClient%203%201.12.2%20WASM/index.html",
+            "./Games/Minecraft/Release_1.8.8.html": "https://eaglercraft.dev/clients/Release%201.8.8%20WASM/index.html",
+            "./Games/Minecraft/Release_1.12.2.html": "https://eaglercraft.dev/clients/Release%201.12.2%20WASM/index.html",
+            "./Games/Minecraft/Resent_Client_4.0.html": "https://eaglercraft.dev/clients/Resent%20Client%204.0%20JS/index.html",
+            "./Games/Minecraft/Resent_Client_5.0.html": "https://eaglercraft.dev/clients/Resent%20Client%205.0%20WASM/index.html",
+            "./Games/Minecraft/Tuff_Client_1.12.2.html": "https://eaglercraft.dev/clients/Tuff%20Client%20WASM/index.html"
+        };
+
+        let currentActiveUrl = "";
 
         function createCard(item, container) {
             const card = document.createElement('div');
@@ -250,10 +485,10 @@
             if (item.zoomOut) extraClasses += ' zoom-out-img';
 
             let media = `<div class="img-container${extraClasses}">`;
-            if (item.svg === "bolt") media += `<svg viewBox="0 0 24 24" fill="#FFD700"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`;
-            else if (item.isTMovie) media += `<img src="https://www.wackybuttons.com/designcodes/0/110/1102136.png">`;
-            else media += `<img src="${item.img}">`;
-            media += `</div><span>${item.name}</span>`;
+            media += `<img src="${item.img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2103/2103832.png'">`;
+            media += `</div>`;
+            media += `<span>${item.name}</span>`;
+            
             card.innerHTML = media;
 
             if (item.options) {
@@ -263,7 +498,7 @@
                     const div = document.createElement('div');
                     div.className = 'dropdown-item';
                     div.innerText = o.name;
-                    div.onclick = (e) => { e.stopPropagation(); run(o.url, o.name); };
+                    div.onclick = (e) => { e.stopPropagation(); run(o.url, `${item.name} - ${o.name}`); };
                     drop.appendChild(div);
                 });
                 card.appendChild(drop);
@@ -285,14 +520,18 @@
             const frame = document.getElementById('overlay-frame');
             const titleEl = document.getElementById('active-title');
             
+            currentActiveUrl = url; // Update trackable URL
+
             overlay.classList.add('active');
             titleEl.innerText = title;
+            
+            // Apply sandboxing globally to block any popup/new tab creation
+            frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-modals');
+            
             frame.src = url;
 
-            // Fix for keyboard input: focus the iframe as soon as it starts loading
             frame.onload = () => {
                 frame.focus();
-                // Ensure focus remains inside for games like Minecraft
                 window.focus();
                 frame.contentWindow.focus();
             };
@@ -301,11 +540,91 @@
         function closeOverlay() {
             document.getElementById('blank-overlay').classList.remove('active');
             document.getElementById('overlay-frame').src = "about:blank";
+            document.getElementById('overlay-frame').removeAttribute('sandbox');
+            currentActiveUrl = "";
         }
 
         function toggleMinimize() {
             document.getElementById('blank-overlay').classList.toggle('minimized');
             document.getElementById('minimize-btn').innerText = document.getElementById('blank-overlay').classList.contains('minimized') ? "Expand" : "Minimize";
+        }
+
+        function toggleFullscreen() {
+            const overlay = document.getElementById('blank-overlay');
+            if (!document.fullscreenElement) {
+                overlay.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Helper functions to handle fallback URL modal and copy workflows
+        function getDirectUrl(url) {
+            if (fallbackUrls[url]) {
+                return fallbackUrls[url];
+            }
+            if (url && (url.startsWith('.') || (!url.startsWith('http') && !url.startsWith('blob')))) {
+                return new URL(url, window.location.href).href;
+            }
+            return url || "No link found";
+        }
+
+        // Dynamic 100-character breaking logic to keep layout perfectly aligned
+        function chunkText(text, size) {
+            if (!text) return '';
+            const chunks = [];
+            for (let i = 0; i < text.length; i += size) {
+                chunks.push(text.slice(i, i + size));
+            }
+            return chunks.map(chunk => `<span class="url-chunk">${chunk}</span>`).join('<br>');
+        }
+
+        function showNotWorkingModal() {
+            const modal = document.getElementById('not-working-modal');
+            const urlText = document.getElementById('modal-url-text');
+            const targetUrl = getDirectUrl(currentActiveUrl);
+            
+            // Re-render URL with exactly 100 character line-breaks
+            urlText.innerHTML = chunkText(targetUrl, 100);
+            
+            modal.classList.remove('hidden');
+            // Force reflow for fade transitions
+            void modal.offsetWidth;
+            modal.classList.add('show');
+        }
+
+        function closeNotWorkingModal() {
+            const modal = document.getElementById('not-working-modal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                if (!modal.classList.contains('show')) {
+                    modal.classList.add('hidden');
+                }
+            }, 300);
+        }
+
+        function copyModalUrl() {
+            const urlText = getDirectUrl(currentActiveUrl);
+            const el = document.createElement('textarea');
+            el.value = urlText;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const copyBtn = document.getElementById('copy-btn');
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = "Copied!";
+            copyBtn.classList.remove('bg-[#00ffff]', 'hover:bg-cyan-300');
+            copyBtn.classList.add('bg-green-500', 'hover:bg-green-600', 'text-white');
+            
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.classList.add('bg-[#00ffff]', 'hover:bg-cyan-300');
+                copyBtn.classList.remove('bg-green-500', 'hover:bg-green-600', 'text-white');
+            }, 1500);
         }
 
         function closeAllDropdowns(e) {
