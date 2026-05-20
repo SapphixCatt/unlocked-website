@@ -1,43 +1,56 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Deploy 50 Independent Sites
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Source Code
         uses: actions/checkout@v4
-      - name: Setup Pages
+
+      - name: Setup GitHub Pages Environment
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+
+      - name: Build 50 Isolated Sites
+        run: |
+          # 1. Create the master directory
+          mkdir -p _dist_folder
+          
+          # 2. Run the loop 50 times to create 50 sites
+          for i in {1..50}
+          do
+            TARGET_DIR="_dist_folder/site-$i"
+            mkdir -p "$TARGET_DIR"
+            
+            # Copy all code into the specific site folder
+            rsync -av --exclude='.git*' --exclude='_dist_folder' ./ "$TARGET_DIR/"
+            
+            # Injects a visual helper banner at the top of each page
+            if [ -f "$TARGET_DIR/index.html" ]; then
+              sed -i 's|<body>|<body><div style="background:#111;color:#00ffcc;padding:6px;text-align:center;font-family:monospace;font-size:11px;position:sticky;top:0;z-index:99999;border-bottom:1px solid #00ffcc;">UNLOCKED SITE INSTANCE: #'"$i"'</div>|g' "$TARGET_DIR/index.html"
+            fi
+          done
+
+      - name: Package Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
+          path: '_dist_folder'
+
+      - name: Publish Live to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
