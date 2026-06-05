@@ -1,4 +1,4 @@
-name: Deploy Static Content to Pages
+name: Generate and Deploy 50 Sites
 
 on:
   push:
@@ -24,13 +24,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Copy root files and generate 1-50
+        run: |
+          mkdir -p _site
+          # Copy your existing repository files into the deployment folder
+          cp -r * _site/ 2>/dev/null || true
+          rm -rf _site/_site # Prevents infinite recursion
+          
+          # Generate the 50 separate folders
+          for i in {1..50}; do
+            mkdir -p _site/$i
+            echo "<!DOCTYPE html><html><head><title>Site $i</title></head><body><h1>Welcome to Site $i</h1></body></html>" > _site/$i/index.html
+          done
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
-        with:
-          path: '.' # This uploads your whole repository root, keeping folders 1-50 intact
         uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
 
       - name: Deploy to GitHub Pages
         id: deployment
