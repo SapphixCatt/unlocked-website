@@ -24,24 +24,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build and Sync All Sites
+      - name: Create Redirect Sites
         run: |
-          # 1. Prepare deployment directory
           mkdir -p _site
+          # Copy your existing files to the root
+          cp -r . _site/
+          rm -rf _site/.git _site/.github
           
-          # 2. Copy all files from root to _site, excluding metadata folders
-          # We explicitly copy known file types to avoid infinite recursive loops
-          cp -r index.html style.css script.js *.png *.jpg *.jpeg *.js *.css _site/ 2>/dev/null || true
-          
-          # 3. Generate sub-sites
+          # Instead of copying files 50 times, we create a small redirect file
           for i in {1..50}; do
             mkdir -p "_site/$i"
-            
-            # 4. Copy files into the specific sub-folder
-            cp -r _site/* "_site/$i/" 2>/dev/null || true
-            
-            # 5. Prevent sub-sites from being copied into themselves
-            rm -rf "_site/$i/$i"
+            echo "<html><head><meta http-equiv='refresh' content='0; url=../'></head><body>Redirecting...</body></html>" > "_site/$i/index.html"
           done
 
       - name: Setup GitHub Pages Environment
