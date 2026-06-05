@@ -24,20 +24,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build Complete Directory Structure
+      - name: Build and Sync All Sites
         run: |
-          # 1. Create a clean isolated directory for the final deployment
           mkdir -p _deploy_workspace
           
-          # 2. Copy main branch files to the root of the workspace
+          # Copy everything from root to the workspace
           rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ _deploy_workspace/
           
-          # 3. Create folders 1-50 and copy the entire project into each one
-          # This ensures CSS/JS paths remain correct relative to each site
+          # Generate folders 1-50 and replicate the full site inside each
           for i in {1..50}; do
             mkdir -p "_deploy_workspace/$i"
-            # Copies everything (css, js, images) into the sub-folder
-            rsync -av --exclude='_deploy_workspace' ./ "_deploy_workspace/$i/"
+            # Copy all files into the numbered folder
+            rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ "_deploy_workspace/$i/"
           done
 
       - name: Setup GitHub Pages Environment
