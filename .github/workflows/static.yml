@@ -24,24 +24,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Deployment Structure
+      - name: Deploy Sites
         run: |
-          # 1. Create the base directory
-          mkdir -p public
+          mkdir -p _site
+          # Copy everything from current folder to _site, excluding hidden git/action files
+          cp -r index.html style.css script.js _site/ 2>/dev/null || true
           
-          # 2. Move existing files into public, ignoring hidden git/workflow folders
-          find . -maxdepth 1 -not -name '.' -not -name '.git' -not -name '.github' -not -name 'public' -exec cp -r {} public/ \;
-          
-          # 3. Create folders 1-50
+          # Create exactly 50 folders and copy assets into each
           for i in {1..50}; do
-            mkdir -p "public/$i"
-            
-            # 4. Create symbolic links for all files in the root
-            # This makes all your main files "appear" inside the sub-folders
-            # without actually duplicating them (prevents memory errors)
-            cd "public/$i"
-            find .. -maxdepth 1 -not -name '.' -not -name '..' -exec ln -s {} . \;
-            cd ../..
+            mkdir -p "_site/$i"
+            cp index.html "_site/$i/index.html"
+            cp style.css "_site/$i/style.css" 2>/dev/null || true
+            cp script.js "_site/$i/script.js" 2>/dev/null || true
           done
 
       - name: Setup GitHub Pages Environment
@@ -50,7 +44,7 @@ jobs:
       - name: Upload Workspace Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'public'
+          path: '_site'
 
       - name: Deploy Live to GitHub Pages
         id: deployment
