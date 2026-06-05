@@ -26,23 +26,25 @@ jobs:
 
       - name: Build and Sync All Sites
         run: |
-          # Create the final directory structure
-          mkdir -p _site
+          # Create a clean deployment folder
+          mkdir -p public
           
-          # 1. Copy all original files to the root of _site (This handles your main site)
-          cp -R . _site/
+          # Copy only the files we want, excluding the folders we don't need
+          # This prevents the "infinite loop" error that causes Error 1
+          find . -maxdepth 1 -not -name '.' -not -name '.git' -not -name '.github' -not -name 'public' -exec cp -r {} public/ \;
           
-          # 2. Remove the _site folder from inside _site to avoid infinite loops
-          rm -rf _site/_site
-          
-          # 3. Create folders 1-50 and copy the full site content into each
+          # Create 50 numbered sub-folders
           for i in {1..50}; do
-            mkdir -p "_site/$i"
-            cp -R . "_site/$i/"
-            # Remove the nested _site folder within each numbered directory
-            rm -rf "_site/$i/_site"
-            # Remove the workflow file to keep it clean
-            rm -rf "_site/$i/.github"
+            mkdir -p "public/$i"
+            # Copy your main index.html into each sub-folder
+            # We assume your main page is index.html
+            if [ -f "index.html" ]; then
+              cp index.html "public/$i/index.html"
+            fi
+            # If you have a style.css, copy that too
+            if [ -f "style.css" ]; then
+              cp style.css "public/$i/style.css"
+            fi
           done
 
       - name: Setup GitHub Pages Environment
@@ -51,7 +53,7 @@ jobs:
       - name: Upload Workspace Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site'
+          path: 'public'
 
       - name: Deploy Live to GitHub Pages
         id: deployment
