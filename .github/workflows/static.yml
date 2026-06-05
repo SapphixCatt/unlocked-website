@@ -1,8 +1,9 @@
-name: Deploy 50 Independent Sites
+name: Deploy 50 Static Sites
 
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,40 +18,28 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps:deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup GitHub Pages Environment
-        uses: actions/configure-pages@v5
-
-      - name: Build 50 Isolated Sites
+      - name: Generate 50 Separate Sites
         run: |
-          # 1. Create the master directory
-          mkdir -p _dist_folder
-          
-          # 2. Run the loop 50 times to create 50 sites
-          for i in {1..50}
-          do
-            TARGET_DIR="_dist_folder/site-$i"
-            mkdir -p "$TARGET_DIR"
-            
-            # Copy all code into the specific site folder
-            rsync -av --exclude='.git*' --exclude='_dist_folder' ./ "$TARGET_DIR/"
-            
-            # Injects a visual helper banner at the top of each page
-            if [ -f "$TARGET_DIR/index.html" ]; then
-              sed -i 's|<body>|<body><div style="background:#111;color:#00ffcc;padding:6px;text-align:center;font-family:monospace;font-size:11px;position:sticky;top:0;z-index:99999;border-bottom:1px solid #00ffcc;">UNLOCKED SITE INSTANCE: #'"$i"'</div>|g' "$TARGET_DIR/index.html"
-            fi
+          mkdir -p _site
+          for i in {1..50}; do
+            mkdir -p _site/$i
+            echo "<!DOCTYPE html><html><head><title>Site $i</title></head><body><h1>Welcome to Site $i</h1></body></html>" > _site/$i/index.html
           done
 
-      - name: Package Artifacts
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_dist_folder'
+          path: '_site'
 
-      - name: Publish Live to GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/actions-deploy-pages@v4
