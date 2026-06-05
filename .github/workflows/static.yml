@@ -24,31 +24,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build and Repair Paths
+      - name: Build and Sync All Sites
         run: |
-          # 1. Create a clean staging directory
-          mkdir -p build_stage
-          
-          # 2. Copy root files to a temporary location first (avoids recursive copies)
-          # We explicitly copy known files to avoid grabbing the _site or build folders
-          cp -r index.html style.css script.js build_stage/ 2>/dev/null || true
-          # If you have an images folder:
-          if [ -d "images" ]; then cp -r images build_stage/; fi
-          
-          # 3. Create the final deployment site
+          # 1. Prepare deployment directory
           mkdir -p _site
-          cp -r build_stage/* _site/
           
-          # 4. Generate 50 folders
+          # 2. Copy all files from root to _site, excluding metadata folders
+          # We explicitly copy known file types to avoid infinite recursive loops
+          cp -r index.html style.css script.js *.png *.jpg *.jpeg *.js *.css _site/ 2>/dev/null || true
+          
+          # 3. Generate sub-sites
           for i in {1..50}; do
             mkdir -p "_site/$i"
-            cp -r build_stage/* "_site/$i/"
             
-            # 5. Fix paths only if the file exists
-            if [ -f "_site/$i/index.html" ]; then
-              sed -i 's|href="/|href="|g' "_site/$i/index.html"
-              sed -i 's|src="/|src="|g' "_site/$i/index.html"
-            fi
+            # 4. Copy files into the specific sub-folder
+            cp -r _site/* "_site/$i/" 2>/dev/null || true
+            
+            # 5. Prevent sub-sites from being copied into themselves
+            rm -rf "_site/$i/$i"
           done
 
       - name: Setup GitHub Pages Environment
