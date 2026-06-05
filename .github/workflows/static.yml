@@ -24,18 +24,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Deploy Sites
+      - name: Build and Copy Files
         run: |
           mkdir -p _site
-          # Copy everything from current folder to _site, excluding hidden git/action files
-          cp -r index.html style.css script.js _site/ 2>/dev/null || true
           
-          # Create exactly 50 folders and copy assets into each
+          # List all files you want in every sub-site here
+          # You can add more names like 'about.html' or 'script.js' inside the quotes
+          files_to_copy=("index.html" "style.css" "script.js" "main.js" "logo.png")
+          
+          # 1. Copy files to the main root of _site
+          for file in "${files_to_copy[@]}"; do
+            if [ -f "$file" ]; then cp "$file" _site/; fi
+          done
+          
+          # 2. Create folders 1-50 and copy files into each
           for i in {1..50}; do
             mkdir -p "_site/$i"
-            cp index.html "_site/$i/index.html"
-            cp style.css "_site/$i/style.css" 2>/dev/null || true
-            cp script.js "_site/$i/script.js" 2>/dev/null || true
+            for file in "${files_to_copy[@]}"; do
+              if [ -f "$file" ]; then cp "$file" "_site/$i/"; fi
+            done
           done
 
       - name: Setup GitHub Pages Environment
