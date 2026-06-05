@@ -1,15 +1,19 @@
-name: Deploy Pre-existing Folders
+name: Deploy Main Site and 50 Sub-Sites
+
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
   workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 concurrency:
   group: "pages"
   cancel-in-progress: false
+
 jobs:
   deploy:
     environment:
@@ -17,14 +21,32 @@ jobs:
       url: ${{ steps:deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Setup Pages
+
+      - name: Build Complete Directory Structure
+        run: |
+          # 1. Create a clean isolated directory for the final deployment
+          mkdir -p _deploy_workspace
+          
+          # 2. Copy all your existing files (main website) into it safely
+          # This excludes hidden git/action folders to prevent workflow crashes
+          rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ _deploy_workspace/
+          
+          # 3. Explicitly generate folders 1 through 50 without skipping any
+          for i in {1..50}; do
+            mkdir -p "_deploy_workspace/$i"
+            echo "<!DOCTYPE html><html><head><title>Site $i</title></head><body><h1>Welcome to Site $i</h1></body></html>" > "_deploy_workspace/$i/index.html"
+          done
+
+      - name: Setup GitHub Pages Environment
         uses: actions/configure-pages@v5
-      - name: Upload artifact
+
+      - name: Upload Workspace Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
-      - name: Deploy to GitHub Pages
+          path: '_deploy_workspace'
+
+      - name: Deploy Live to GitHub Pages
         id: deployment
         uses: actions/actions-deploy-pages@v4
