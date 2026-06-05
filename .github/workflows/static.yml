@@ -24,27 +24,24 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build and Sync All Sites
+      - name: Setup Deployment Structure
         run: |
-          # Create a clean deployment folder
+          # 1. Create the base directory
           mkdir -p public
           
-          # Copy only the files we want, excluding the folders we don't need
-          # This prevents the "infinite loop" error that causes Error 1
+          # 2. Move existing files into public, ignoring hidden git/workflow folders
           find . -maxdepth 1 -not -name '.' -not -name '.git' -not -name '.github' -not -name 'public' -exec cp -r {} public/ \;
           
-          # Create 50 numbered sub-folders
+          # 3. Create folders 1-50
           for i in {1..50}; do
             mkdir -p "public/$i"
-            # Copy your main index.html into each sub-folder
-            # We assume your main page is index.html
-            if [ -f "index.html" ]; then
-              cp index.html "public/$i/index.html"
-            fi
-            # If you have a style.css, copy that too
-            if [ -f "style.css" ]; then
-              cp style.css "public/$i/style.css"
-            fi
+            
+            # 4. Create symbolic links for all files in the root
+            # This makes all your main files "appear" inside the sub-folders
+            # without actually duplicating them (prevents memory errors)
+            cd "public/$i"
+            find .. -maxdepth 1 -not -name '.' -not -name '..' -exec ln -s {} . \;
+            cd ../..
           done
 
       - name: Setup GitHub Pages Environment
