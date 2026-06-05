@@ -30,13 +30,12 @@ jobs:
           mkdir -p _deploy_workspace
           
           # 2. Copy all your existing files (main website) into it safely
-          # This excludes hidden git/action folders to prevent workflow crashes
           rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ _deploy_workspace/
           
-          # 3. Explicitly generate folders 1 through 50 without skipping any
+          # 3. Explicitly generate folders 1 through 50 and copy YOUR index.html into them
           for i in {1..50}; do
             mkdir -p "_deploy_workspace/$i"
-            echo "<!DOCTYPE html><html><head><title>Site $i</title></head><body><h1>Welcome to Site $i</h1></body></html>" > "_deploy_workspace/$i/index.html"
+            cp _deploy_workspace/index.html "_deploy_workspace/$i/index.html"
           done
 
       - name: Setup GitHub Pages Environment
