@@ -26,16 +26,23 @@ jobs:
 
       - name: Build and Sync All Sites
         run: |
-          mkdir -p _deploy_workspace
+          # Create the final directory structure
+          mkdir -p _site
           
-          # Copy everything from root to the workspace
-          rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ _deploy_workspace/
+          # 1. Copy all original files to the root of _site (This handles your main site)
+          cp -R . _site/
           
-          # Generate folders 1-50 and replicate the full site inside each
+          # 2. Remove the _site folder from inside _site to avoid infinite loops
+          rm -rf _site/_site
+          
+          # 3. Create folders 1-50 and copy the full site content into each
           for i in {1..50}; do
-            mkdir -p "_deploy_workspace/$i"
-            # Copy all files into the numbered folder
-            rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ "_deploy_workspace/$i/"
+            mkdir -p "_site/$i"
+            cp -R . "_site/$i/"
+            # Remove the nested _site folder within each numbered directory
+            rm -rf "_site/$i/_site"
+            # Remove the workflow file to keep it clean
+            rm -rf "_site/$i/.github"
           done
 
       - name: Setup GitHub Pages Environment
@@ -44,7 +51,7 @@ jobs:
       - name: Upload Workspace Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_deploy_workspace'
+          path: '_site'
 
       - name: Deploy Live to GitHub Pages
         id: deployment
