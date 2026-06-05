@@ -29,13 +29,15 @@ jobs:
           # 1. Create a clean isolated directory for the final deployment
           mkdir -p _deploy_workspace
           
-          # 2. Copy all your existing files (main website) into it safely
+          # 2. Copy main branch files to the root of the workspace
           rsync -av --exclude='.git*' --exclude='_deploy_workspace' ./ _deploy_workspace/
           
-          # 3. Explicitly generate folders 1 through 50 and copy YOUR index.html into them
+          # 3. Create folders 1-50 and copy the entire project into each one
+          # This ensures CSS/JS paths remain correct relative to each site
           for i in {1..50}; do
             mkdir -p "_deploy_workspace/$i"
-            cp _deploy_workspace/index.html "_deploy_workspace/$i/index.html"
+            # Copies everything (css, js, images) into the sub-folder
+            rsync -av --exclude='_deploy_workspace' ./ "_deploy_workspace/$i/"
           done
 
       - name: Setup GitHub Pages Environment
