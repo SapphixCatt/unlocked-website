@@ -24,25 +24,23 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Build and Copy Files
+      - name: Build and Repair Paths
         run: |
           mkdir -p _site
           
-          # List all files you want in every sub-site here
-          # You can add more names like 'about.html' or 'script.js' inside the quotes
-          files_to_copy=("index.html" "style.css" "script.js" "main.js" "logo.png")
-          
-          # 1. Copy files to the main root of _site
-          for file in "${files_to_copy[@]}"; do
-            if [ -f "$file" ]; then cp "$file" _site/; fi
-          done
-          
-          # 2. Create folders 1-50 and copy files into each
+          # Copy everything into _site
+          cp -r . _site/
+          rm -rf _site/.git _site/.github _site/_site
+
+          # Create 50 folders and copy files into them
           for i in {1..50}; do
             mkdir -p "_site/$i"
-            for file in "${files_to_copy[@]}"; do
-              if [ -f "$file" ]; then cp "$file" "_site/$i/"; fi
-            done
+            cp -r ./* "_site/$i/" 2>/dev/null || true
+            
+            # REMOVE the leading slash from paths in index.html for this sub-site
+            # This turns href="/style.css" into href="style.css" so it works in sub-folders
+            sed -i 's|href="/|href="|g' "_site/$i/index.html"
+            sed -i 's|src="/|src="|g' "_site/$i/index.html"
           done
 
       - name: Setup GitHub Pages Environment
