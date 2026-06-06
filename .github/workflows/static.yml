@@ -24,17 +24,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create Redirect Sites
+      - name: Build 50 Independent Sites
         run: |
-          mkdir -p _site
-          # Copy your existing files to the root
-          cp -r . _site/
-          rm -rf _site/.git _site/.github
+          # 1. Create a clean temporary staging area outside of our source
+          mkdir -p ../staging_assets
           
-          # Instead of copying files 50 times, we create a small redirect file
+          # 2. Copy ALL files from your main branch into the staging area
+          # This safely isolates your files so no loops can happen
+          cp -R * ../staging_assets/ 2>/dev/null || true
+          
+          # 3. Create the final deployment directory
+          mkdir -p _final_site
+          
+          # 4. Copy the staging assets to the root (handles your main website)
+          cp -R ../staging_assets/* _final_site/
+          
+          # 5. Create folders 1 to 50 and copy the complete asset suite into every single one
           for i in {1..50}; do
-            mkdir -p "_site/$i"
-            echo "<html><head><meta http-equiv='refresh' content='0; url=../'></head><body>Redirecting...</body></html>" > "_site/$i/index.html"
+            mkdir -p "_final_site/$i"
+            cp -R ../staging_assets/* "_final_site/$i/"
           done
 
       - name: Setup GitHub Pages Environment
@@ -43,7 +51,7 @@ jobs:
       - name: Upload Workspace Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site'
+          path: '_final_site'
 
       - name: Deploy Live to GitHub Pages
         id: deployment
