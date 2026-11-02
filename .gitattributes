@@ -1,0 +1,2 @@
+gd_web.data filter=lfs diff=lfs merge=lfs -text
+*.data filter=lfs diff=lfs merge=lfs -text
